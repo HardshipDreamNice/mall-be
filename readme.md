@@ -1,9 +1,6 @@
-# 广州都灵源链信息科技有限公司后台开放平台 #
-
-----------
 
 ##**介绍**
-广州都灵源链信息科技有限公司后端代码基础模型，使用了SpringBoot2+JPA+Hibernate框架。
+使用了SpringBoot2+JPA+Hibernate框架。
 
 * JAVA
 * Spring
@@ -572,8 +569,3 @@ Content-Type: application/json
 
 
 
-##**联系我们**
-
-email： lvxin@torinosrc.com
-
-手机：18027188617
