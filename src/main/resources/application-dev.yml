@@ -1,0 +1,64 @@
+# debug
+server:
+  port: 9036
+debug: false
+spring:
+    datasource:
+      readSize: 1
+        # 使用druid数据源
+      type: com.alibaba.druid.pool.DruidDataSource
+      url: jdbc:mysql://localhost:3306/mall_160
+      username: torinosrc
+      password: torinosrc
+      driver-class-name: com.mysql.jdbc.Driver
+      filters: stat
+      maxActive: 20
+      initialSize: 1
+      maxWait: 60000
+      minIdle: 1
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: select 1
+      testWhileIdle: true
+      testOnBorrow: true
+      testOnReturn: true
+      poolPreparedStatements: true
+      maxOpenPreparedStatements: 20
+
+    jpa:
+      open-in-view: true
+      properties:
+        hibernate:
+          enable_lazy_load_no_trans: ture
+          ddl-auto: update
+
+weixin:
+  appId: wxba037356a3ef805e
+  secret: c9d6c6a4a57b212a8be709f1216bbf72
+  mchId: 1476220302
+  key: qqqdanyeqqqdanye999danye999danye
+  body: 160商城
+  attach: \u90fd\u7075\u670d\u9970
+  notifyUrl: http://api-e.torinosrc.com/api/v1/wx/pay/callback
+  notifyRUrl: http://api-e.torinosrc.com/api/v1/wx/refund/callback
+  qrCodePath:  /www/root/mall_160/public
+  backgroundPic: canvasbg.png
+  backgroundGroupPic: canvasbg.png
+  shopQrCodeBackGroupPic: canvasbg.png
+  templateId: gJ0xJxPiA3j_LoO9cinTnRaULlAgQdI3ec45VO8tUSI
+
+authority:
+  userName: user
+  password: lvxin
+
+logging:
+  config: classpath:log/dev/logback.xml
+
+##上传路径和host url,url可以默认不填写前端拼接
+pic:
+  save:
+    path: /www/root/mall_160
+    url:
+
+ueditor:
+  config: /www/root/mall_160/conf/ueditor/dev/config.json

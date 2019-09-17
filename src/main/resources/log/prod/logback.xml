@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 日志日常打印文件 -->
+        <file>/torinosrc/logs/applogs/mall_160/mall_160_prod.log</file>
+        <!--<file>C:/Users/Administrator/Desktop/log/mall.log</file>-->
+        <!--<file>/www/be/mall/mall.log</file>-->
+        <!--<file>/Users/ming/Desktop/Dev/tmp/mall.log</file>-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/torinosrc/logs/applogs/torinosrc_mall/mall.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <!-- 每产生一个日志文件，该日志文件的保存期限为30天 -->
+            <maxHistory>30</maxHistory>
+            <!-- 日志总保存量为10GB -->
+            <!--<totalSizeCap>10GB</totalSizeCap>-->
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--文件达到 最大10MB时会被压缩和切割 -->
+                <maxFileSize>10 MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type
+           ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!-- 日志级别 -->
+    <root>
+        <level value="info" />
+        <!--<level value="debug" /> -->
+        <!--<appender-ref ref="STDOUT" />-->
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>

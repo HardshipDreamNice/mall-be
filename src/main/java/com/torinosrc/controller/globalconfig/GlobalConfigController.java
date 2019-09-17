@@ -1,0 +1,202 @@
+/**
+ * 版权©2015-2018年，广州都灵源链信息科技有限公司，版权所有。
+ * Copyright © 2015 - 2018, GuangZhou Torino Source Info Technology Co., LTD.,
+ * All rights reserved.
+ */
+package com.torinosrc.controller.globalconfig;
+
+import com.torinosrc.commons.utils.TorinoSrcServiceExceptionUtils;
+import com.torinosrc.commons.utils.message.MessageCode;
+import com.torinosrc.commons.utils.message.MessageDescription;
+import com.torinosrc.commons.utils.message.MessageStatus;
+import com.torinosrc.commons.utils.message.MessageUtils;
+import com.torinosrc.model.view.message.TorinoSrcErrorResponseMessage;
+import com.torinosrc.model.view.message.TorinoSrcMessage;
+import com.torinosrc.model.view.globalconfig.GlobalConfigView;
+import com.torinosrc.service.globalconfig.GlobalConfigService;
+import io.swagger.annotations.*;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+/**
+ * <b><code>GlobalConfigController</code></b>
+ * <p/>
+ * GlobalConfig的具体实现的Api类，提供统一的api调用
+ * <p/>
+ * <b>Creation Time:</b> 2018-12-13 15:26:00.
+ *
+ * @author ${model.author}
+ * @version 1.0.0
+ * @since torinosrc-spring-boot-be 1.0.0
+ */
+@Api(value = "[Torino Source]拼团配置接口",tags = "[Torino Source]拼团配置接口",description = "")
+@RestController
+@RequestMapping(value = "/api")
+public class GlobalConfigController {
+
+    /** The Constant LOG. */
+    private static final Logger LOG = LoggerFactory
+            .getLogger(GlobalConfigController.class);
+
+    /** The service. */
+    @Autowired
+    private GlobalConfigService globalConfigService;
+
+    @ApiOperation(value = "[Torino Source]创建拼团配置", notes = "创建一个拼团配置")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "successful operation", responseHeaders = @ResponseHeader(name = "location", description = "URL of new created resource", response = String.class) ),
+            @ApiResponse(code = 409, message = "conflict"),
+            @ApiResponse(code = 500, message = "internal server error") })
+    @RequiresPermissions(value = {"sys:globalconfig:add"})
+    @RequestMapping(value = "/v1/globalconfigs", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<?> createGlobalConfig(
+            @ApiParam(value = "拼团配置", required = true) @RequestBody GlobalConfigView globalConfigView,
+            UriComponentsBuilder ucBuilder) {
+        try {
+            // 保存实体
+            GlobalConfigView globalConfigView1 = globalConfigService.saveEntity(globalConfigView);
+            // 设置http的headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(ucBuilder.path("/api/v1/globalconfigs/{id}")
+                    .buildAndExpand(globalConfigView1.getId()).toUri());
+            // 封装返回信息
+            TorinoSrcMessage<GlobalConfigView> torinoSrcMessage = MessageUtils.setMessage(MessageCode.SUCCESS, MessageStatus.SUCCESS, MessageDescription.OPERATION_INSERT_SUCCESS, globalConfigView1);
+            return new ResponseEntity<>(torinoSrcMessage, headers, HttpStatus.CREATED);
+        } catch (Throwable t) {
+            String error = "Failed to add entity! " + MessageDescription.OPERATION_INSERT_FAILURE;
+            LOG.error(error, t);
+            TorinoSrcMessage<TorinoSrcErrorResponseMessage> torinoSrcMessage = MessageUtils.setMessage(MessageCode.FAILURE, MessageStatus.ERROR, error, new TorinoSrcErrorResponseMessage(t.toString()));
+            return TorinoSrcServiceExceptionUtils.getHttpStatusWithResponseTorinoSrcMessage(torinoSrcMessage, t);
+        }
+    }
+
+    @ApiOperation(value = "[Torino Source]删除拼团配置", notes = "通过id删除拼团配置")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "successful request"),
+            @ApiResponse(code = 500, message = "internal server error") })
+    @RequiresPermissions(value = {"sys:globalconfig:delete"})
+    @RequestMapping(value = "/v1/globalconfigs/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<?> deleteGlobalConfig(
+            @ApiParam(value = "拼团配置id", required = true) @PathVariable(value = "id") Long id) {
+        try {
+            globalConfigService.deleteEntity(id);
+            // 封装返回信息
+            TorinoSrcMessage<GlobalConfigView> torinoSrcMessage = MessageUtils.setMessage(MessageCode.SUCCESS, MessageStatus.SUCCESS, MessageDescription.OPERATION_DELETE_SUCCESS, null);
+            return new ResponseEntity<>(torinoSrcMessage, HttpStatus.OK);
+        } catch (Throwable t) {
+            String error = "Failed to delete entity! " + MessageDescription.OPERATION_DELETE_FAILURE;
+            LOG.error(error, t);
+            TorinoSrcMessage<TorinoSrcErrorResponseMessage> torinoSrcMessage = MessageUtils.setMessage(MessageCode.FAILURE, MessageStatus.ERROR, error, new TorinoSrcErrorResponseMessage(t.toString()));
+            return TorinoSrcServiceExceptionUtils.getHttpStatusWithResponseTorinoSrcMessage(torinoSrcMessage, t);
+        }
+    }
+
+    @ApiOperation(value = "[Torino Source]删除拼团配置", notes = "批量删除拼团配置")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "successful request"),
+            @ApiResponse(code = 500, message = "internal server error") })
+    @RequiresPermissions(value = {"sys:globalconfig:delete"})
+    @RequestMapping(value = "/v1/globalconfigs", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<?> deleteGlobalConfigs(
+            @ApiParam(value = "拼团配置ids，样例 - 1,2,3", required = true) @RequestParam(value = "condition", required = true) String condition) {
+        try {
+            globalConfigService.deleteEntities(condition);
+            // 封装返回信息
+            TorinoSrcMessage<GlobalConfigView> torinoSrcMessage = MessageUtils.setMessage(MessageCode.SUCCESS, MessageStatus.SUCCESS, MessageDescription.OPERATION_DELETE_SUCCESS, null);
+            return new ResponseEntity<>(torinoSrcMessage, HttpStatus.OK);
+        } catch (Throwable t) {
+            String error = "Failed to delete entities! " + MessageDescription.OPERATION_DELETE_FAILURE;
+            LOG.error(error, t);
+            TorinoSrcMessage<TorinoSrcErrorResponseMessage> torinoSrcMessage = MessageUtils.setMessage(MessageCode.FAILURE, MessageStatus.ERROR, error, new TorinoSrcErrorResponseMessage(t.toString()));
+            return TorinoSrcServiceExceptionUtils.getHttpStatusWithResponseTorinoSrcMessage(torinoSrcMessage, t);
+        }
+    }
+
+    @ApiOperation(value = "[Torino Source]更新拼团配置", notes = "更新拼团配置信息")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "successful"),
+            @ApiResponse(code = 404, message = "not found"),
+            @ApiResponse(code = 409, message = "conflict"),
+            @ApiResponse(code = 500, message = "internal Server Error") })
+    @RequiresPermissions(value = {"sys:globalconfig:update"})
+    @RequestMapping(value = "/v1/globalconfigs/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<?> updateGlobalConfigs(
+            @ApiParam(value = "拼团配置id", required = true) @PathVariable(value = "id") Long id,
+            @ApiParam(value = "拼团配置信息", required = true) @RequestBody GlobalConfigView globalConfigView) {
+        try {
+            globalConfigView.setId(id);
+            globalConfigService.updateEntity(globalConfigView);
+            // 封装返回信息
+            TorinoSrcMessage<GlobalConfigView> torinoSrcMessage = MessageUtils.setMessage(MessageCode.SUCCESS, MessageStatus.SUCCESS, MessageDescription.OPERATION_UPDATE_SUCCESS, globalConfigView);
+            return new ResponseEntity<>(torinoSrcMessage, HttpStatus.OK);
+        } catch (Throwable t) {
+            String error = "Failed to update entity! " + MessageDescription.OPERATION_UPDATE_FAILURE;
+            LOG.error(error, t);
+            TorinoSrcMessage<TorinoSrcErrorResponseMessage> torinoSrcMessage = MessageUtils.setMessage(MessageCode.FAILURE, MessageStatus.ERROR, error, new TorinoSrcErrorResponseMessage(t.toString()));
+            return TorinoSrcServiceExceptionUtils.getHttpStatusWithResponseTorinoSrcMessage(torinoSrcMessage, t);
+        }
+    }
+
+    @ApiOperation(value = "[Torino Source]获取单个拼团配置", notes = "通过id获取拼团配置")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "successful request"),
+            @ApiResponse(code = 500, message = "internal server error") })
+    @RequiresPermissions(value = {"sys:globalconfig:query"})
+    @RequestMapping(value = "/v1/globalconfigs/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<?> getGlobalConfig(
+            @ApiParam(value = "拼团配置id", required = true) @PathVariable(value = "id") Long id) {
+        try {
+            final GlobalConfigView globalConfigView = globalConfigService.getEntity(id);
+            // 封装返回信息
+            TorinoSrcMessage<GlobalConfigView> torinoSrcMessage = MessageUtils.setMessage(MessageCode.SUCCESS, MessageStatus.SUCCESS, MessageDescription.OPERATION_QUERY_SUCCESS, globalConfigView);
+            return new ResponseEntity<>(torinoSrcMessage, HttpStatus.OK);
+        } catch (Throwable t) {
+            String error = "Failed to get entity!" + MessageDescription.OPERATION_QUERY_FAILURE;
+            LOG.error(error, t);
+            TorinoSrcMessage<TorinoSrcErrorResponseMessage> torinoSrcMessage = MessageUtils.setMessage(MessageCode.FAILURE, MessageStatus.ERROR, error, new TorinoSrcErrorResponseMessage(t.toString()));
+            return TorinoSrcServiceExceptionUtils.getHttpStatusWithResponseTorinoSrcMessage(torinoSrcMessage, t);
+        }
+    }
+
+    @ApiOperation(value = "[Torino Source]获取拼团配置列表", notes = "通过查询条件获取拼团配置列表")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "successful request"),
+            @ApiResponse(code = 500, message = "internal server error") })
+    @RequiresPermissions(value = {"sys:globalconfig:query"})
+    @RequestMapping(value = "/v1/globalconfigs", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<?> getGlobalConfigs(
+            @ApiParam(value = "查询条件", defaultValue = "", required = false) @RequestParam(value = "condition", defaultValue = "", required = false) String condition,
+            @ApiParam(value = "页数", defaultValue = "0", required = false) @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
+            @ApiParam(value = "每页加载量", defaultValue = "10", required = false) @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
+        try {
+            // 解析Base64的查询条件
+            if(!StringUtils.isEmpty(condition)){
+                condition = new String(Base64Utils.decodeFromString(condition));
+            }
+            GlobalConfigView globalConfigView = new GlobalConfigView();
+            globalConfigView.setCondition(condition);
+
+            Page<GlobalConfigView> globalConfigViews = globalConfigService
+                    .getEntitiesByParms(globalConfigView, pageNumber, pageSize);
+            // 封装返回信息
+            TorinoSrcMessage<Page<GlobalConfigView>> torinoSrcMessage = MessageUtils.setMessage(MessageCode.SUCCESS, MessageStatus.SUCCESS, MessageDescription.OPERATION_QUERY_SUCCESS, globalConfigViews);
+            return new ResponseEntity<>(torinoSrcMessage, HttpStatus.OK);
+        } catch (Throwable t) {
+            String error = "Failed to get entities!" + MessageDescription.OPERATION_QUERY_FAILURE;
+            LOG.error(error, t);
+            TorinoSrcMessage<TorinoSrcErrorResponseMessage> torinoSrcMessage = MessageUtils.setMessage(MessageCode.FAILURE, MessageStatus.ERROR, error, new TorinoSrcErrorResponseMessage(t.toString()));
+            return TorinoSrcServiceExceptionUtils.getHttpStatusWithResponseTorinoSrcMessage(torinoSrcMessage, t);
+        }
+    }
+
+}
